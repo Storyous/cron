@@ -1,0 +1,21 @@
+{
+  "extends": "airbnb/base",
+  "ecmaFeatures": {
+    "defaultParams": false,
+    "destructuring": false,
+    "forOf": true,
+    "generators": true,
+    "modules": false
+  },
+  "rules": {
+    "func-names": 0,
+    "strict": [2, "global"],
+    "indent": [2, 4],
+    "space-before-function-paren": [2, {"anonymous": "always", "named": "always"}],
+    "comma-dangle": [2, "never"],
+    "no-unused-vars": [2, {"vars": "all", "args": "after-used"}],
+    "no-param-reassign": [0, {"props": true}],
+    "padded-blocks": 0,
+    "default-case": 0
+  }
+}
