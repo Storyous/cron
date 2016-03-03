@@ -1,6 +1,6 @@
 {
-  "name": "cron",
-  "version": "0.0.1",
+  "name": "cronious",
+  "version": "1.0.1",
   "description": "Simple task runner",
   "main": "./src/index.js",
   "engines": {
@@ -8,7 +8,7 @@
     "mongodb": "3.2.1"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha -w"
+    "test": "mocha -w"
   },
   "repository": {
     "type": "git",
@@ -32,5 +32,15 @@
     "sinon": "^1.17.3",
     "mongodb": "^2.1.7",
     "q": "^1.4.1"
-  }
+  },
+  "homepage": "https://github.com/Storyous/cron#readme",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "cron",
+    "task",
+    "runner"
+  ],
+  "author": "storyous"
 }
