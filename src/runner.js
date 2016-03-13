@@ -23,7 +23,7 @@ class Runner {
         /**
          * @type {Object.<string, Task>}
          */
-        this._tasks = [];
+        this._tasks = new Map();
 
         this._intervalId = null;
         this._runningTaskPromise = null;
@@ -82,6 +82,12 @@ class Runner {
             clearInterval(this._intervalId);
             this._intervalId = null;
         }
+
+        if(this._runningTaskPromise) {
+            return this._runningTaskPromise.catch(() => {});
+        }
+
+        return Promise.resolve();
     }
 
     /**
@@ -186,9 +192,7 @@ class Runner {
                 runPromise = co.call(task, task.run, progressCallback);
 
             } catch (err) {
-                runPromise = new Promise(function (resolve, reject) {
-                    reject(err);
-                });
+                runPromise = Promise.reject(err);
             }
 
             return runPromise
