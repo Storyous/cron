@@ -21,7 +21,7 @@ class Runner {
     constructor (options) {
 
         /**
-         * @type {Object.<string, Task>}
+         * @type {Map.<string, Task>}
          */
         this._tasks = new Map();
 
@@ -60,7 +60,7 @@ class Runner {
 
         this._checkTask(task);
 
-        this._tasks[task.taskId] = task;
+        this._tasks.set(task.taskId, task);
 
         return this._ensureTaskInCollection(task, priority);
     }
@@ -175,7 +175,7 @@ class Runner {
      * @param {TaskDbModel} dbTask
      */
     _runTask (dbTask) {
-        const task = this._tasks[dbTask._id];
+        const task = this._tasks.get(dbTask._id);
 
         if (task) {
             const self = this;
@@ -263,7 +263,7 @@ class Runner {
         const now = new Date();
 
         const query = {
-            _id: { $in: Object.keys(this._tasks) }, // choose only one of the tasks registered in this runner
+            _id: { $in: Array.from(this._tasks.keys()) }, // choose only one of the tasks registered in this runner
             runSince: { $lte: now }
         };
 
