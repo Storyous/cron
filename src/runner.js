@@ -38,10 +38,10 @@ class Runner {
         this._minProgressWriteDelay = this._runningLockTime / 5;
 
         this._logInfo = options._logInfo || ((message, data) => {
-            console.log({message, data});
+            console.log(JSON.stringify({message, data}));
         });
         this._logError = options._logError || ((message, error) => {
-            console.error({message, error});
+            console.error(JSON.stringify({message, error}));
         });
     }
 
