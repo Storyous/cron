@@ -14,8 +14,8 @@ class Runner {
      *   collection: mongodb.Collection
      *   checkInterval: number
      *   runningLockTime?: number
-     *   logInfo?: function
-     *   logError?: function
+     *   _logInfo?: function
+     *   _logError?: function
      * }} options
      */
     constructor (options) {
@@ -37,8 +37,12 @@ class Runner {
         }
         this._minProgressWriteDelay = this._runningLockTime / 5;
 
-        this.logInfo = options.logInfo || console.log.bind(console);
-        this.logError = options.logError || console.error.bind(console);
+        this._logInfo = options._logInfo || ((message, data) => {
+            console.log({message, data});
+        });
+        this._logError = options._logError || ((message, error) => {
+            console.error({message, error});
+        });
     }
 
     /**
@@ -160,7 +164,7 @@ class Runner {
                     });
             })
             .finally(() => {
-                self._runningTaskPromise.catch(this.logError);
+                self._runningTaskPromise.catch(this._logError);
                 self._runningTaskPromise = null;
             })
             .then((runNextImmediately) => {
@@ -181,7 +185,7 @@ class Runner {
             const self = this;
             let runPromise;
 
-            this.logError('Starting task', { task: dbTask._id });
+            this._logInfo('Starting task ' + dbTask._id);
 
             let nextTimeWhenStart;
             try {
@@ -198,10 +202,10 @@ class Runner {
             return runPromise
                 .then(() => {
                     self._finishTask(dbTask, nextTimeWhenStart);
-                    this.logInfo('Task has finished', { task: dbTask._id });
+                    this._logInfo('Task has finished ' + dbTask._id);
 
                 }, (err) => {
-                    this.logError('Error while running task', { task: dbTask._id, err });
+                    this._logError('Error while running task ' + dbTask._id, err);
                     return self._onTaskFail(task)
                         .then(function () {
                             throw err;
