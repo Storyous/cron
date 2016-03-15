@@ -14,8 +14,8 @@ class Runner {
      *   collection: mongodb.Collection
      *   checkInterval: number
      *   runningLockTime?: number
-     *   _logInfo?: function
-     *   _logError?: function
+     *   logInfo?: function
+     *   logError?: function
      * }} options
      */
     constructor (options) {
@@ -37,10 +37,10 @@ class Runner {
         }
         this._minProgressWriteDelay = this._runningLockTime / 5;
 
-        this._logInfo = options._logInfo || ((message, data) => {
+        this._logInfo = options.logInfo || ((message, data) => {
             console.log(JSON.stringify({message, data}));
         });
-        this._logError = options._logError || ((message, error) => {
+        this._logError = options.logError || ((message, error) => {
             console.error(JSON.stringify({message, error}));
         });
     }
