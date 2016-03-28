@@ -8,6 +8,7 @@
     "modules": false
   },
   "rules": {
+    "no-console": 0,
     "func-names": 0,
     "strict": [2, "global"],
     "indent": [2, 4],

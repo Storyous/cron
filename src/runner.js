@@ -6,6 +6,8 @@ const Task = require('./task');
 const TaskDbModel = require('./taskDbModel');
 const co = require('co');
 
+const INFO_STARTING_TASK = 'INFO_STARTING_TASK';
+const INFO_TASK_FINISHED = 'INFO_TASK_FINISHED';
 
 class Runner {
 
@@ -37,11 +39,11 @@ class Runner {
         }
         this._minProgressWriteDelay = this._runningLockTime / 5;
 
-        this._logInfo = options.logInfo || ((message, data) => {
-            console.log(JSON.stringify({message, data}));
+        this._logInfo = options.logInfo || ((code, data) => {
+            console.log(JSON.stringify({ code, data }));
         });
-        this._logError = options.logError || ((message, error) => {
-            console.error(JSON.stringify({message, error}));
+        this._logError = options.logError || ((message, error, data) => {
+            console.error(JSON.stringify({ message, error, data }));
         });
     }
 
@@ -70,6 +72,13 @@ class Runner {
     }
 
     /**
+     * @returns {Task[]}
+     */
+    getTasks () {
+        return Array.from(this._tasks.values());
+    }
+
+    /**
      * @returns {void}
      */
     startTriggeringTasks () {
@@ -87,8 +96,9 @@ class Runner {
             this._intervalId = null;
         }
 
-        if(this._runningTaskPromise) {
-            return this._runningTaskPromise.catch(() => {});
+        if (this._runningTaskPromise) {
+            return this._runningTaskPromise.catch(() => {
+            });
         }
 
         return Promise.resolve();
@@ -142,10 +152,9 @@ class Runner {
      * @returns {void}
      */
     _runNext () {
-        const self = this;
 
-        const isRunningAnother = self._runningTaskPromise !== null;
-        const isTriggeringStopped = self._intervalId === null;
+        const isRunningAnother = this._runningTaskPromise !== null;
+        const isTriggeringStopped = this._intervalId === null;
 
         if (isRunningAnother || isTriggeringStopped) {
             return;
@@ -158,19 +167,19 @@ class Runner {
                     return false;
                 }
 
-                return self._runTask(task)
-                    .then(function () {
-                        return true;
-                    });
+                return this._runTask(task)
+                    .then(() => true);
             })
             .finally(() => {
-                self._runningTaskPromise.catch(this._logError);
-                self._runningTaskPromise = null;
+                this._runningTaskPromise.catch((err) => {
+                    this._logError('Error while running a task', err, {});
+                });
+                this._runningTaskPromise = null;
             })
             .then((runNextImmediately) => {
 
                 if (runNextImmediately) {
-                    self._runNext();
+                    this._runNext();
                 }
             });
     }
@@ -179,39 +188,34 @@ class Runner {
      * @param {TaskDbModel} dbTask
      */
     _runTask (dbTask) {
-        const task = this._tasks.get(dbTask._id);
 
-        if (task) {
-            const self = this;
-            let runPromise;
+        const taskId = dbTask._id;
+        const task = this._tasks.get(taskId);
 
-            this._logInfo('Starting task ' + dbTask._id);
+        this._logInfo(INFO_STARTING_TASK, { taskId });
 
-            let nextTimeWhenStart;
-            try {
-                nextTimeWhenStart = task.getNextTime();
-                const progressCallback = () => {
-                    this._onTaskProgress(dbTask._id);
-                };
-                runPromise = co.call(task, task.run, progressCallback);
+        let nextTimeWhenStart;
+        let runPromise;
+        try {
+            nextTimeWhenStart = task.getNextTime();
+            const progressCallback = () => {
+                this._onTaskProgress(taskId);
+            };
+            runPromise = co.call(task, task.run, progressCallback);
 
-            } catch (err) {
-                runPromise = Promise.reject(err);
-            }
-
-            return runPromise
-                .then(() => {
-                    self._finishTask(dbTask, nextTimeWhenStart);
-                    this._logInfo('Task has finished ' + dbTask._id);
-
-                }, (err) => {
-                    this._logError('Error while running task ' + dbTask._id, err);
-                    return self._onTaskFail(task)
-                        .then(function () {
-                            throw err;
-                        });
-                });
+        } catch (err) {
+            runPromise = Promise.reject(err);
         }
+
+        return runPromise
+            .then(() => {
+                this._finishTask(dbTask, nextTimeWhenStart);
+                this._logInfo(INFO_TASK_FINISHED, { taskId });
+
+            }, (err) => {
+                this._logError('Error while running task', err, { taskId });
+                return this._onTaskFail(task);
+            });
     }
 
     _onTaskProgress (taskId) {
@@ -239,7 +243,8 @@ class Runner {
         };
 
         return this._collection.updateOne(query, update)
-            .catch(() => {});
+            .catch(() => {
+            });
     }
 
     /**
@@ -267,7 +272,8 @@ class Runner {
         const now = new Date();
 
         const query = {
-            _id: { $in: Array.from(this._tasks.keys()) }, // choose only one of the tasks registered in this runner
+            // choose only one of the tasks registered in this runner
+            _id: { $in: Array.from(this._tasks.keys()) },
             runSince: { $lte: now }
         };
 
@@ -299,5 +305,8 @@ class Runner {
         }
     }
 }
+
+Runner.INFO_TASK_STARTED = INFO_STARTING_TASK;
+Runner.INFO_TASK_FINISHED = INFO_TASK_FINISHED;
 
 module.exports = Runner;
