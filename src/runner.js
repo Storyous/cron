@@ -18,6 +18,7 @@ class Runner {
      *   runningLockTime?: number
      *   logInfo?: function
      *   logError?: function
+     *   newTasksDelay?: number
      * }} options
      */
     constructor (options) {
@@ -45,6 +46,8 @@ class Runner {
         this._logError = options.logError || ((message, error, data) => {
             console.error(JSON.stringify({ message, error, data }));
         });
+
+        this._newTasksDelay = options.newTasksDelay || 0;
     }
 
     /**
@@ -123,7 +126,17 @@ class Runner {
         const dbModel = new TaskDbModel();
         dbModel._id = task.taskId;
         dbModel.priority = priority;
-        dbModel.runSince = new Date();
+        dbModel.runSince = task.getNextTime();
+
+        if (this._newTasksDelay) {
+
+            const earliestStart = new Date();
+            earliestStart.setMilliseconds(earliestStart.getMilliseconds() + this._newTasksDelay);
+
+            if (dbModel.runSince < earliestStart) {
+                dbModel.runSince = earliestStart;
+            }
+        }
 
         return dbModel;
     }

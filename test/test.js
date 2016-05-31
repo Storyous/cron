@@ -38,7 +38,7 @@ const getMockTask = function (nextTimeDelay) {
 
 describe('Runner', function () {
 
-    this.timeout(2100);
+    this.timeout(3600);
 
     let collection;
     beforeEach((done) => {
@@ -78,6 +78,7 @@ describe('Runner', function () {
     it('should trigger registered task', () => {
         const task = getMockTask();
         return runner.registerTask(task, 1)
+            .delay(1500)
             .then(() => {
                 runner.startTriggeringTasks();
             })
@@ -98,6 +99,7 @@ describe('Runner', function () {
                 runner.registerTask(task2, 3),
                 runner.registerTask(task3, 1)
             ])
+            .delay(1500)
             .then(() => {
                 runner.startTriggeringTasks();
             })
@@ -118,6 +120,7 @@ describe('Runner', function () {
         const task = getMockTask(500);
 
         return runner.registerTask(task, 1)
+            .delay(500)
             .then(() => {
                 runner.startTriggeringTasks();
             })
@@ -141,6 +144,7 @@ describe('Runner', function () {
         });
 
         return runner.registerTask(task, 1)
+            .delay(1500)
             .then(() => {
                 runner.startTriggeringTasks();
             })
