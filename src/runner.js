@@ -298,7 +298,7 @@ class Runner {
             }
         };
 
-        const sort = { priority: -1 };
+        const sort = { priority: -1, lastRunAt: 1 };
         const fields = { _id: true, runSince: true, priority: true };
         const options = {
             sort,
