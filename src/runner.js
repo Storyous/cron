@@ -209,6 +209,8 @@ class Runner {
 
         let nextTimeWhenStart;
         let runPromise;
+        const taskStartedAt = new Date();
+
         try {
             nextTimeWhenStart = task.getNextTime();
             const progressCallback = () => {
@@ -223,10 +225,16 @@ class Runner {
         return runPromise
             .then(() => {
                 this._finishTask(dbTask, nextTimeWhenStart);
-                this._logInfo(INFO_TASK_FINISHED, { taskId });
+                this._logInfo(INFO_TASK_FINISHED, {
+                    taskId,
+                    runTime: Date.now() - taskStartedAt.getTime()
+                });
 
             }, (err) => {
-                this._logError('Error while running task', err, { taskId });
+                this._logError('Error while running task', err, {
+                    taskId,
+                    runTime: Date.now() - taskStartedAt.getTime()
+                });
                 return this._onTaskFail(task);
             });
     }
