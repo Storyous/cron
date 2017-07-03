@@ -173,6 +173,13 @@ class Runner {
             return;
         }
 
+        const finallyCallback = () => {
+            this._runningTaskPromise.catch((err) => {
+                this._logError('Error while running a task', err, {});
+            });
+            this._runningTaskPromise = null;
+        };
+
         this._runningTaskPromise = this._findNextTask()
             .then((task) => {
 
@@ -183,12 +190,16 @@ class Runner {
                 return this._runTask(task)
                     .then(() => true);
             })
-            .finally(() => {
-                this._runningTaskPromise.catch((err) => {
-                    this._logError('Error while running a task', err, {});
-                });
-                this._runningTaskPromise = null;
-            })
+            .then(
+                (runNextImmediately) => {
+                    finallyCallback();
+                    return runNextImmediately;
+                },
+                (err) => {
+                    finallyCallback();
+                    throw err;
+                }
+            )
             .then((runNextImmediately) => {
 
                 if (runNextImmediately) {

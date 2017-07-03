@@ -138,7 +138,7 @@ describe('Runner', function () {
         task.run = sinon.spy(() => {
             return Q.delay(300).then(function () {
                 if (1 === ++cnt) {
-                    return Q.reject('someError');
+                    throw new Error('someError');
                 }
             });
         });
