@@ -258,7 +258,7 @@ class Runner {
             // just some optimization - we don't need to update runSince
             // every time of 'progress' call...
             this._lastProgresses[taskId] = now;
-            this._prolongTaskRunSince(taskId, this._runningLockTime).done();
+            this._prolongTaskRunSince(taskId, this._runningLockTime);
         }
     }
 
@@ -275,7 +275,8 @@ class Runner {
         };
 
         return this._collection.updateOne(query, update)
-            .catch(() => {
+            .catch((err) => {
+                this._logError('Error while _prolongTaskRunSince', err, {});
             });
     }
 
@@ -287,7 +288,7 @@ class Runner {
         const prolongByTime = nextTimeWhenStart.getTime() - Date.now();
 
         if (prolongByTime > 0) {
-            this._prolongTaskRunSince(task._id, prolongByTime).done();
+            this._prolongTaskRunSince(task._id, prolongByTime);
         }
     }
 
