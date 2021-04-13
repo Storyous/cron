@@ -223,7 +223,6 @@ class Runner {
         const taskStartedAt = new Date();
 
         try {
-            nextTimeWhenStart = task.getNextTime();
             const progressCallback = () => {
                 this._onTaskProgress(taskId);
             };
@@ -235,6 +234,7 @@ class Runner {
 
         return runPromise
             .then(() => {
+                nextTimeWhenStart = task.getNextTime();
                 this._finishTask(dbTask, nextTimeWhenStart);
                 this._logInfo(INFO_TASK_FINISHED, {
                     taskId,
