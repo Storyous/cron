@@ -13,10 +13,16 @@ class Task {
         throw new Error('Implement in subclass');
     }
 
+    /**
+     * @returns {Date}
+     */
     getNextTime () {
         throw new Error('Implement in subclass');
     }
 
+    /**
+     * @returns {Date}
+     */
     getNextTimeAfterFail () {
         return this.getNextTime();
     }
