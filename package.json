@@ -3,6 +3,10 @@
   "version": "1.6.2",
   "description": "Simple task runner",
   "main": "./src/index.js",
+  "types": "./types/index.d.ts",
+  "files": [
+    "types"
+  ],
   "engines": {
     "node": ">=4.0.0",
     "mongodb": "3.2.1"
@@ -29,9 +33,10 @@
     "eslint-config-airbnb": "^6.0.2",
     "eslint-plugin-react": "^4.1.0",
     "mocha": "^2.4.5",
-    "sinon": "^1.17.3",
     "mongodb": "^2.1.7",
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "sinon": "^1.17.3",
+    "typescript": "^4.5.2"
   },
   "homepage": "https://github.com/Storyous/cron#readme",
   "directories": {
