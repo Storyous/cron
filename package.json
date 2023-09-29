@@ -1,6 +1,6 @@
 {
   "name": "cronious",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "Simple task runner",
   "main": "./src/index.js",
   "engines": {
