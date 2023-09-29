@@ -152,7 +152,6 @@ class Runner {
                 priority: task.priority
             },
             $setOnInsert: {
-                _id: task._id,
                 runSince: task.runSince,
                 lastRunAt: task.lastRunAt
             }
